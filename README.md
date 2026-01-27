@@ -9,7 +9,7 @@
 👉 [https://github.com/cayoduarte/livepix-backend](https://github.com/Cduartev/livepix-backend)
 
 ![Java](https://img.shields.io/badge/Java-21+-orange)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-green)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4-green)
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Router-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Relational-blue)
