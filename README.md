@@ -1,115 +1,158 @@
+
+# LivePix 
+**Sistema de pagamentos Pix em tempo real para lives (OBS) — Frontend + Backend**
+## 🔗 Repositório Frontend
+
+👉 [https://github.com/cayoduarte/livepix-frontend](https://github.com/Cduartev/livepix-front)
+## 🔗 Repositório Backend
+
+👉 [https://github.com/cayoduarte/livepix-backend](https://github.com/Cduartev/livepix-backend)
+
+![Java](https://img.shields.io/badge/Java-21+-orange)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-green)
+![Next.js](https://img.shields.io/badge/Next.js-App%20Router-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Relational-blue)
+![SSE](https://img.shields.io/badge/SSE-Real--Time-yellow)
+![Pix](https://img.shields.io/badge/Pix-Brasil-green)
+![Mercado Pago](https://img.shields.io/badge/Mercado%20Pago-API-blue)
+
+## 📌 Visão Geral
+
+**LivePix** é um sistema completo de **pagamentos Pix em tempo real**, projetado para uso em **lives e streamings**, integrando:
+
+* Backend Java com **Mercado Pago (Pix real)**
+* Webhooks de produção
+* **Server-Sent Events (SSE)** para comunicação em tempo real
+* Frontend em **Next.js** com overlays prontos para OBS
+
+O projeto foi desenvolvido com foco em:
+
+* Arquitetura limpa
+* Separação clara de responsabilidades
+* Fluxo real de produção (dinheiro real)
+* Comunicação assíncrona confiável
+* Experiência em tempo real para o usuário
+
 ---
 
-# LivePix Frontend ⚡️
+## 🧱 Arquitetura Geral
 
-Overlay de Pix em tempo real para lives , construído com **Next.js**, **shadcn/ui** e **Server-Sent Events (SSE)**.
+```
+[ OBS / Browser Source ]
+          |
+          | SSE (EventSource)
+          v
+   [ Frontend Overlay ]
+          |
+          | REST API
+          v
+   [ LivePix Backend ]
+          |
+          | API Mercado Pago
+          v
+     [ Mercado Pago ]
+          |
+          | Webhook
+          v
+   [ LivePix Backend ]
+```
 
-Este frontend consome eventos em tempo real do backend e exibe:
+### 🔁 Fluxo Real de Pagamento
 
-* Alertas de doações para o streamer
-* QR Code Pix para o usuário realizar pagamentos
+1. Usuário solicita geração de Pix
+2. Backend cria cobrança via Mercado Pago
+3. Usuário paga pelo app do banco
+4. Mercado Pago envia **webhook**
+5. Backend:
+
+   * valida o evento
+   * atualiza o status no banco
+   * publica evento `pix` via SSE
+6. Frontend reage automaticamente:
+
+   * alerta na live
+   * confirmação visual
+   * fechamento do QR Code
 
 ---
 
 ## ✨ Funcionalidades
 
-### 🎥 Overlay Streamer (Alertas)
+### 💰 Pagamentos Pix (Backend)
 
-* Alertas em tempo real via SSE
+* Integração real com **Mercado Pago**
+* Suporte a **sandbox** e **produção**
+* Geração de:
+
+  * `paymentId`
+  * QR Code (texto)
+  * QR Code Base64 (imagem)
+* Backend como **single source of truth**
+
+### 🔔 Webhooks
+
+* Endpoint dedicado para notificações do Mercado Pago
+* Processamento de eventos reais de produção
+* Atualização segura do status no banco
+* Disparo de eventos em tempo real via SSE
+
+### 📡 Server-Sent Events (SSE)
+
+* Conexão persistente
+* Múltiplos clientes simultâneos
+* Eventos:
+
+  * `connected`
+  * `pix`
+* Ideal para:
+
+  * overlays de live
+  * dashboards
+  * notificações em tempo real
+
+### 🎥 Overlays (Frontend)
+
+#### Overlay Streamer
+
+* Alertas em tempo real
 * Fila de eventos
-* Exibição de **nome**, **valor** e **mensagem**
 * Animações suaves
-* Status normalizado (**APPROVED / PENDING / FAILED / etc.**)
+* Exibição de nome, valor e mensagem
 
-### 👤 Overlay Usuário (QR Code Pix)
+#### Overlay Usuário
 
-* Geração de Pix via backend
-* Exibição de **QR Code** e **Pix Copia e Cola**
-* Fila de pagamentos Pix
+* QR Code Pix
+* Pix Copia e Cola
 * Contador de expiração
 * Animação de confirmação
 * Fechamento automático após pagamento aprovado
 
 ### 🌐 Estado Global
 
-* Gerenciamento de estado com **Zustand**
-* Sincronização entre overlay de QR Code e overlay de alertas
+* Gerenciamento com **Zustand**
+* Sincronização entre QR Code e alertas
+* Frontend totalmente desacoplado da lógica crítica
 
 ---
 
-## 🧱 Stack
+## 🧪 Ambiente de Desenvolvimento
 
-* Next.js (App Router)
-* React
-* TypeScript
-* shadcn/ui
-* Zustand
-* Server-Sent Events (`EventSource`)
+* Endpoint DEV exclusivo para simulação de pagamento
+* Ativo apenas com `SPRING_PROFILES_ACTIVE=dev`
+* Nunca exposto em produção
 
----
-
-## 🚀 Como rodar localmente
-
-### ✅ Requisitos
-
-* Node.js **18+**
-* **pnpm**
-
-### 📦 Instalação
-
-```bash
-pnpm install
-```
-### 🔧 Variáveis de ambiente
-
-Crie um arquivo `.env.local` na raiz do projeto.
-
-```env
-NEXT_PUBLIC_API=http://localhost:8080
-```
-
-Ou, usando proxy (recomendado com ngrok):
-
-```env
-NEXT_PUBLIC_API=/api
-```
-
-### ▶️ Executar o projeto
-
-```bash
-pnpm dev
+```http
+POST /dev/approve/{paymentId}
 ```
 
 ---
 
-## 🖥️ Rotas de Overlay (OBS)
-
-### Overlay Streamer (Alertas)
-
-```
-/overlay/streamer/alerts
-```
-
-### Overlay Usuário (QR Code Pix)
-
-```
-/overlay/user/qr
-```
-
----
-
-## 🔔 SSE (Tempo Real)
+## 🔔 SSE — Eventos
 
 ```http
 GET /alerts/stream
 ```
-
-### Eventos tratados
-
-* `connected`
-* `pix`
-
-### Exemplo de payload
 
 ```json
 {
@@ -125,31 +168,110 @@ GET /alerts/stream
 
 ---
 
-## 🌍 Usar com ngrok
+## 🧱 Stack Tecnológica
+
+### Backend
+
+* Java 21+ (20 / 21 / 25)
+* Spring Boot
+* Spring Web
+* Spring Data JPA
+* SseEmitter
+* PostgreSQL
+* Mercado Pago API (Pix)
+
+### Frontend
+
+* Next.js (App Router)
+* React
+* TypeScript
+* shadcn/ui
+* Zustand
+* EventSource (SSE)
+
+---
+
+## 🚀 Execução Local
+
+### Backend
+
+```env
+MP_ACCESS_TOKEN=TEST-xxxxxxxx
+SPRING_PROFILES_ACTIVE=dev
+SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/livepix
+SPRING_DATASOURCE_USERNAME=postgres
+SPRING_DATASOURCE_PASSWORD=postgres
+```
 
 ```bash
-ngrok http 3000
+./mvnw spring-boot:run
+```
+
+Backend:
+
+```
+http://localhost:8080
+```
+
+### Frontend
+
+```env
+NEXT_PUBLIC_API=http://localhost:8080
+```
+
+```bash
+pnpm install
+pnpm dev
+```
+
+Frontend:
+
+```
+http://localhost:3000
+```
+
+---
+
+## 🖥️ Rotas de Overlay (OBS)
+
+```
+/overlay/streamer/alerts
+/overlay/user/qr
 ```
 
 ---
 
 ## 🔐 Segurança
 
-* Proteger overlays com token (`?token=...`)
-* Evitar expor rotas sensíveis
-* Limitar tamanho das mensagens exibidas
+* Frontend **não aprova pagamentos**
+* Backend concentra toda lógica crítica
+* Webhook como única confirmação real
+* Endpoint DEV isolado por profile
+
+Recomendações para produção:
+
+* Validação de assinatura do webhook
+* Idempotência por `paymentId`
+* Controle de acesso ao SSE
 
 ---
 
-## 📄 Licença
+## 📈 Destaques para Portfólio
 
-Projeto para estudo e portfólio.
+* Integração com sistema financeiro real
+* Eventos assíncronos em produção
+* Arquitetura orientada a eventos
+* Fluxo real de negócio (não é CRUD)
+* Separação clara entre frontend e backend
+* Pensado para ambiente real e OBS
 
 ---
 
 ## 👤 Autor
 
 **Cayo Duarte Vidal**
-Next.js • Zustand • SSE
+Software Engineer
+Java • Spring Boot • REST APIs • SSE • PostgreSQL • Pix • Mercado Pago • Next.js
 
 ---
+
