@@ -60,7 +60,6 @@ Este frontend consome eventos em tempo real do backend e exibe:
 ```bash
 pnpm install
 ```
-
 ### 🔧 Variáveis de ambiente
 
 Crie um arquivo `.env.local` na raiz do projeto.
