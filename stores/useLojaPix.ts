@@ -12,7 +12,7 @@ export type PixCharge = {
   createdAt?: string | null; // ISO string
 };
 
-type PixStoreState = {
+type LojaPixState = {
   queue: PixCharge[];
   activePaymentId: number | null;
 
@@ -35,7 +35,7 @@ type PixStoreState = {
   getActive: () => PixCharge | null;
 };
 
-export const usePixStore = create<PixStoreState>((set, get) => ({
+export const useLojaPix = create<LojaPixState>((set, get) => ({
   queue: [],
   activePaymentId: null,
   openQr: false,

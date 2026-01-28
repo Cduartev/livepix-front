@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { usePixStore } from "@/stores/usePixStore";
+import { useLojaPix } from "@/stores/useLojaPix";
 
 type AlertEventRaw = {
   paymentId: number;
@@ -26,7 +26,7 @@ export function usePixSse() {
       try {
         const raw = JSON.parse((event as MessageEvent).data) as AlertEventRaw;
 
-        const pix = usePixStore.getState();
+        const pix = useLojaPix.getState();
         const status = pix.normalizeStatus(raw.status, raw.ok);
 
         // Atualiza se existir na fila do usuário (QR)
