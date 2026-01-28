@@ -1,15 +1,13 @@
 
-# LivePix 
+# LivePix
 **Sistema de pagamentos Pix em tempo real para lives (OBS) — Frontend + Backend**
-## 🔗 Repositório Frontend
 
-👉 [https://github.com/cayoduarte/livepix-frontend](https://github.com/Cduartev/livepix-front)
-## 🔗 Repositório Backend
-
-👉 [https://github.com/cayoduarte/livepix-backend](https://github.com/Cduartev/livepix-backend)
+## 🔗 Repositórios
+* **Frontend:** [https://github.com/Cduartev/livepix-front](https://github.com/Cduartev/livepix-front)
+* **Backend:** [https://github.com/Cduartev/livepix-backend](https://github.com/Cduartev/livepix-backend)
 
 ![Java](https://img.shields.io/badge/Java-21+-orange)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4-green)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-green)
 ![Next.js](https://img.shields.io/badge/Next.js-App%20Router-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Relational-blue)
@@ -19,259 +17,92 @@
 
 ## 📌 Visão Geral
 
-**LivePix** é um sistema completo de **pagamentos Pix em tempo real**, projetado para uso em **lives e streamings**, integrando:
+**LivePix** é um sistema completo de **pagamentos Pix em tempo real**, projetado para uso em **lives e streamings**. Ele permite que streamers recebam doações via Pix e exibam alertas instantâneos na tela do OBS.
 
-* Backend Java com **Mercado Pago (Pix real)**
-* Webhooks de produção
-* **Server-Sent Events (SSE)** para comunicação em tempo real
-* Frontend em **Next.js** com overlays prontos para OBS
-
-O projeto foi desenvolvido com foco em:
-
-* Arquitetura limpa
-* Separação clara de responsabilidades
-* Fluxo real de produção (dinheiro real)
-* Comunicação assíncrona confiável
-* Experiência em tempo real para o usuário
+O projeto integra:
+* **Backend Java** com integração real ao **Mercado Pago**.
+* **Webhooks** para confirmação de pagamento automática.
+* **Server-Sent Events (SSE)** para atualização instantânea do frontend.
+* **Frontend Next.js** com overlays (sobreposições) otimizadas para o OBS.
 
 ---
 
-## 🧱 Arquitetura Geral
+## 🧱 Arquitetura e Fluxo
 
-```
-[ OBS / Browser Source ]
-          |
-          | SSE (EventSource)
-          v
-   [ Frontend Overlay ]
-          |
-          | REST API
-          v
-   [ LivePix Backend ]
-          |
-          | API Mercado Pago
-          v
-     [ Mercado Pago ]
-          |
-          | Webhook
-          v
-   [ LivePix Backend ]
-```
+O sistema funciona como uma ponte entre o doador, o Mercado Pago e o Streamer:
 
-### 🔁 Fluxo Real de Pagamento
-
-1. Usuário solicita geração de Pix
-2. Backend cria cobrança via Mercado Pago
-3. Usuário paga pelo app do banco
-4. Mercado Pago envia **webhook**
-5. Backend:
-
-   * valida o evento
-   * atualiza o status no banco
-   * publica evento `pix` via SSE
-6. Frontend reage automaticamente:
-
-   * alerta na live
-   * confirmação visual
-   * fechamento do QR Code
+1. **Solicitação:** O usuário preenche o formulário no Overlay de Usuário.
+2. **Criação:** O backend gera uma cobrança Pix no Mercado Pago e retorna o QR Code.
+3. **Pagamento:** O usuário paga via app do banco.
+4. **Notificação:** O Mercado Pago avisa o backend via **Webhook**.
+5. **Processamento:** O backend valida, salva no banco de dados e dispara um evento via **SSE**.
+6. **Alerta:** O Overlay do Streamer "ouve" o evento e exibe o alerta com som e animação.
 
 ---
 
 ## ✨ Funcionalidades
 
-### 💰 Pagamentos Pix (Backend)
+### 💰 Gestão de Pagamentos (Backend)
+* **Integração Real:** Usa a API do Mercado Pago para gerar Pix autênticos.
+* **Tradução e Semântica:** Código totalmente em português para facilitar a manutenção (`modelo`, `repositorio`, `servico`).
+* **Segurança:** O backend é a única fonte da verdade. O frontend nunca aprova pagamentos.
 
-* Integração real com **Mercado Pago**
-* Suporte a **sandbox** e **produção**
-* Geração de:
+### � Comunicação em Tempo Real (SSE)
+* Usa conexões persistentes para garantir latência zero nos alertas.
+* Eventos padronizados: `connected` (boas-vindas) e `pix` (novo pagamento aprovado).
 
-  * `paymentId`
-  * QR Code (texto)
-  * QR Code Base64 (imagem)
-* Backend como **single source of truth**
-
-### 🔔 Webhooks
-
-* Endpoint dedicado para notificações do Mercado Pago
-* Processamento de eventos reais de produção
-* Atualização segura do status no banco
-* Disparo de eventos em tempo real via SSE
-
-### 📡 Server-Sent Events (SSE)
-
-* Conexão persistente
-* Múltiplos clientes simultâneos
-* Eventos:
-
-  * `connected`
-  * `pix`
-* Ideal para:
-
-  * overlays de live
-  * dashboards
-  * notificações em tempo real
-
-### 🎥 Overlays (Frontend)
-
-#### Overlay Streamer
-
-* Alertas em tempo real
-* Fila de eventos
-* Animações suaves
-* Exibição de nome, valor e mensagem
-
-#### Overlay Usuário
-
-* QR Code Pix
-* Pix Copia e Cola
-* Contador de expiração
-* Animação de confirmação
-* Fechamento automático após pagamento aprovado
-
-### 🌐 Estado Global
-
-* Gerenciamento com **Zustand**
-* Sincronização entre QR Code e alertas
-* Frontend totalmente desacoplado da lógica crítica
+### 🎥 Sobreposições (Overlays Frontend)
+* **Sobreposição do Streamer:** Fila de alertas persistente, animações e histórico de recebidos.
+* **Sobreposição do Usuário:** Interface intuitiva para gerar o Pix, copiar o código e visualizar o status de aprovação.
 
 ---
 
-## 🧪 Ambiente de Desenvolvimento
+## 🖥️ Rotas de Sobreposição (OBS)
 
-* Endpoint DEV exclusivo para simulação de pagamento
-* Ativo apenas com `SPRING_PROFILES_ACTIVE=dev`
-* Nunca exposto em produção
+As URLs que você deve adicionar como "Navegador" no seu OBS:
 
-```http
-POST /dev/approve/{paymentId}
-```
+* **Alertas do Streamer:** `http://localhost:3000/sobreposicao/streamer/alertas`
+* **QR Code do Usuário:** `http://localhost:3000/sobreposicao/usuario/qr`
 
 ---
 
-## 🔔 SSE — Eventos
-
-```http
-GET /alerts/stream
-```
-
-```json
-{
-  "paymentId": 1326029452,
-  "status": "APROVADO",
-  "ok": true,
-  "nome": "Sergio",
-  "valor": 10.0,
-  "mensagem": "Opa e ai, tudo bem?",
-  "em": "2026-01-26T22:30:36.713Z"
-}
-```
-
----
-
-## 🧱 Stack Tecnológica
+## 🛠️ Tecnologias Utilizadas
 
 ### Backend
-
-* Java 21+ (20 / 21 / 25)
-* Spring Boot
-* Spring Web
-* Spring Data JPA
-* SseEmitter
-* PostgreSQL
-* Mercado Pago API (Pix)
+* Java 21 / Spring Boot 3
+* Spring Data JPA / PostgreSQL
+* SseEmitter (Comunicação em tempo real)
+* Mercado Pago SDK
 
 ### Frontend
-
-* Next.js (App Router)
-* React
-* TypeScript
-* shadcn/ui
-* Zustand
+* Next.js 15 (App Router)
+* Tailwind CSS / shadcn/ui
+* Zustand (Gerenciamento de estado via `useLojaPix`)
 * EventSource (SSE)
 
 ---
 
-## 🚀 Execução Local
+## 🚀 Como Executar
 
-### Backend
-
-```env
-MP_ACCESS_TOKEN=TEST-xxxxxxxx
-SPRING_PROFILES_ACTIVE=dev
-SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/livepix
-SPRING_DATASOURCE_USERNAME=postgres
-SPRING_DATASOURCE_PASSWORD=postgres
-```
+### 1. Backend
+Configure o arquivo `application.yaml` ou variáveis de ambiente:
+* `MP_ACCESS_TOKEN`: Seu token do Mercado Pago.
+* Banco de Dados PostgreSQL configurado.
 
 ```bash
+# Na pasta livepix-backend
 ./mvnw spring-boot:run
 ```
 
-Backend:
-
-```
-http://localhost:8080
-```
-
-### Frontend
-
-```env
-NEXT_PUBLIC_API=http://localhost:8080
-```
-
+### 2. Frontend
 ```bash
+# Na pasta livepix-front
 pnpm install
 pnpm dev
 ```
 
-Frontend:
-
-```
-http://localhost:3000
-```
-
----
-
-## 🖥️ Rotas de Overlay (OBS)
-
-```
-/overlay/streamer/alerts
-/overlay/user/qr
-```
-
----
-
-## 🔐 Segurança
-
-* Frontend **não aprova pagamentos**
-* Backend concentra toda lógica crítica
-* Webhook como única confirmação real
-* Endpoint DEV isolado por profile
-
-Recomendações para produção:
-
-* Validação de assinatura do webhook
-* Idempotência por `paymentId`
-* Controle de acesso ao SSE
-
----
-
-## 📈 Destaques para Portfólio
-
-* Integração com sistema financeiro real
-* Eventos assíncronos em produção
-* Arquitetura orientada a eventos
-* Fluxo real de negócio (não é CRUD)
-* Separação clara entre frontend e backend
-* Pensado para ambiente real e OBS
-
 ---
 
 ## 👤 Autor
-
 **Cayo Duarte Vidal**
-Software Engineer
-Java • Spring Boot • REST APIs • SSE • PostgreSQL • Pix • Mercado Pago • Next.js
-
----
-
+Software Engineer especializado em Java, Spring Boot e ecossistema Modern Web.
