@@ -14,6 +14,7 @@ type CreatePixChargeRequest = {
     nome: string;
     valor: number;
     mensagem?: string;
+    email: string;
 };
 
 type CreatePixChargeResponse = {
@@ -65,6 +66,7 @@ export default function PaginaSobreposicaoQr() {
     const [nome, setNome] = useState("");
     const [valor, setValor] = useState("10,00");
     const [mensagem, setMensagem] = useState("");
+    const [email, setEmail] = useState("");
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -125,6 +127,10 @@ export default function PaginaSobreposicaoQr() {
             setError("Informe o nome.");
             return;
         }
+        if (!email.trim() || !email.includes("@")) {
+            setError("Informe um e-mail válido.");
+            return;
+        }
         if (!Number.isFinite(v) || v <= 0) {
             setError("Informe um valor válido (ex: 10,00).");
             return;
@@ -134,6 +140,7 @@ export default function PaginaSobreposicaoQr() {
             nome: nome.trim(),
             valor: Number(v.toFixed(2)),
             mensagem: mensagem.trim() ? mensagem.trim() : undefined,
+            email: email.trim(),
         };
 
         setLoading(true);
@@ -262,6 +269,17 @@ export default function PaginaSobreposicaoQr() {
                                 onChange={(e) => setValor(e.target.value)}
                                 placeholder="Ex: 10,00"
                                 inputMode="decimal"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Seu e-mail</Label>
+                            <Input
+                                id="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="Ex: joao@email.com"
+                                type="email"
                             />
                         </div>
 
