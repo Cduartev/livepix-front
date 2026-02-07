@@ -50,7 +50,7 @@ function formatCountdown(ms: number) {
 
 export default function PaginaSobreposicaoQr() {
     const apiBase = useMemo(
-        () => (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080").replace(/\/$/, ""),
+        () => (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, ""),
         []
     );
 
