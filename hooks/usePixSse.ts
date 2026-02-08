@@ -15,7 +15,7 @@ type AlertEventRaw = {
 
 export function usePixSse() {
   useEffect(() => {
-    const apiBase = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(
+    const apiBase = (process.env.NEXT_PUBLIC_API_URL ?? "/api").replace(
       /\/$/,
       ""
     );
