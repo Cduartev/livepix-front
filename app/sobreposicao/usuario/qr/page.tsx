@@ -64,7 +64,7 @@ export default function PaginaSobreposicaoQr() {
 
     // form
     const [nome, setNome] = useState("");
-    const [valor, setValor] = useState("10,00");
+    const [valor, setValor] = useState("1,00");
     const [mensagem, setMensagem] = useState("");
     const [email, setEmail] = useState("");
 
@@ -281,7 +281,7 @@ export default function PaginaSobreposicaoQr() {
                                             id="valor"
                                             value={valor}
                                             onChange={(e) => setValor(e.target.value)}
-                                            placeholder="10,00"
+                                            placeholder="1,00"
                                             className="pl-10 h-11 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/50 rounded-xl"
                                         />
                                     </div>
